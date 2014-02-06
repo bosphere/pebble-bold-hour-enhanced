@@ -1,3 +1,5 @@
+# Ignore OSX specifics
+.DS_Store
 
 # Ignore build generated files
 build
