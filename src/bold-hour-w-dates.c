@@ -47,7 +47,7 @@ TextLayer *batteryPercentLayer;
 TextLayer *minuteLayer;
 TextLayer *dateLayer;
 TextLayer *dayLayer;
-Layer *lineLayer;
+Layer *bottomBarLayer;
 
 GRect minuteFrame;
 GBitmap *hourImage;
@@ -58,6 +58,12 @@ int loaded_charging_battery = -1;
 
 char last_date_n_day_text[] = "xxx 00xxx";
 char last_battery_text[] = "000";
+
+bool initialized = false;
+bool bluetooth_connected = true;
+int bluetooth_disconnect_anim_repeat = 0;
+
+AppTimer *timer;
 
 // These are all of our images. Each is the entire screen in size.
 const int IMAGE_RESOURCE_IDS[12] = {
@@ -100,9 +106,26 @@ void set_minute_layer_location(unsigned short horiz) {
   }
 }
 
-void line_layer_update_callback(Layer *layer, GContext* ctx) {
-  graphics_context_set_fill_color(ctx, GColorWhite);
-  graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
+void bottom_bar_layer_update_callback(Layer *layer, GContext* ctx) {
+  if(bluetooth_connected) {
+    graphics_context_set_stroke_color(ctx, GColorWhite);
+    GRect boundary = layer_get_bounds(layer);
+    graphics_draw_line(ctx, boundary.origin, GPoint(boundary.origin.x + boundary.size.w, boundary.origin.y));
+  } else {
+    if(bluetooth_disconnect_anim_repeat % 2 == 1) {
+      graphics_context_set_stroke_color(ctx, GColorBlack);  
+    } else {
+      graphics_context_set_stroke_color(ctx, GColorWhite);
+    }
+    graphics_draw_rect(ctx, layer_get_bounds(layer));
+  }
+}
+
+void bluetooh_disconnect_animation_timer_callback(void *context) {
+  if(bluetooth_disconnect_anim_repeat-- >= 0) {
+    layer_mark_dirty(bottomBarLayer);
+    timer = app_timer_register(200, bluetooh_disconnect_animation_timer_callback, NULL);
+  }
 }
 
 void display_time(struct tm * tick_time) {
@@ -188,6 +211,19 @@ static void handle_battery(BatteryChargeState charge_state) {
   update_battery_image(charge_state);
 }
 
+static void handle_bluetooth(bool connected) {
+  if(connected != bluetooth_connected) {  
+    bluetooth_connected = connected;
+    layer_mark_dirty(bottomBarLayer);
+    
+    if(initialized && !connected) {
+      vibes_long_pulse();
+      bluetooth_disconnect_anim_repeat = 4;
+      timer = app_timer_register(200, bluetooh_disconnect_animation_timer_callback, NULL);
+    }
+  }
+}
+
 void handle_minute_tick(struct tm * tick_time, TimeUnits units_changed) {
   display_time(tick_time);
   handle_battery(battery_state_service_peek());
@@ -206,11 +242,11 @@ void handle_init() {
   minuteFrame = GRect(53, 16, 40, 40);
   minuteLayer = text_layer_create(minuteFrame);
   hourLayer = bitmap_layer_create(GRect(0, 0, 144, 148));
-  batteryLogoLayer = bitmap_layer_create(GRect(65, 153, 10, 15));
+  batteryLogoLayer = bitmap_layer_create(GRect(65, 152, 10, 15));
   batteryPercentLayer = text_layer_create(GRect(78, 151, 30, 168-151));
   dateLayer = text_layer_create(GRect(3, 151, 38, 168-151));
   dayLayer = text_layer_create(GRect(144-25, 151, 144-3, 168-151));
-  lineLayer = layer_create(GRect(0, 150, 144, 2));
+  bottomBarLayer = layer_create(GRect(0, 150, 144, 18));
 
   // Setup minute layer
   text_layer_set_text_color(minuteLayer, TEXT_COLOR);
@@ -228,34 +264,39 @@ void handle_init() {
   text_layer_set_background_color(batteryPercentLayer, GColorClear);
 
   // Setup line layer
-  layer_set_update_proc(lineLayer, line_layer_update_callback);
+  layer_set_update_proc(bottomBarLayer, bottom_bar_layer_update_callback);
 
   // Add layers into hierachy
   layer_add_child(bitmap_layer_get_layer(hourLayer), text_layer_get_layer(minuteLayer));
   layer_add_child(window_layer, bitmap_layer_get_layer(hourLayer));
+  layer_add_child(window_layer, bottomBarLayer);
   layer_add_child(window_layer, bitmap_layer_get_layer(batteryLogoLayer));
   layer_add_child(window_layer, text_layer_get_layer(batteryPercentLayer));
   layer_add_child(window_layer, text_layer_get_layer(dateLayer));
   layer_add_child(window_layer, text_layer_get_layer(dayLayer));
-  layer_add_child(window_layer, lineLayer);
 
   // Avoids a blank screen on watch start.
   time_t tick_time = time(NULL);
   display_time(localtime(&tick_time));
   handle_battery(battery_state_service_peek());
+  handle_bluetooth(bluetooth_connection_service_peek());
 
   tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);
   battery_state_service_subscribe(&handle_battery);
+  bluetooth_connection_service_subscribe(&handle_bluetooth);
+
+  initialized = true;
 }
 
 void handle_deinit() {
   tick_timer_service_unsubscribe();
   battery_state_service_unsubscribe();
+  bluetooth_connection_service_unsubscribe();
   text_layer_destroy(batteryPercentLayer);
   text_layer_destroy(minuteLayer);
   text_layer_destroy(dateLayer);
   text_layer_destroy(dayLayer);
-  layer_destroy(lineLayer);
+  layer_destroy(bottomBarLayer);
 
   unload_digit_image();
   bitmap_layer_destroy(hourLayer);
