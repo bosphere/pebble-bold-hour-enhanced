@@ -3,8 +3,8 @@
   "shortName": "Bold Hour with Dates",
   "longName": "Bold Hour with Dates",
   "companyName": "Bo Yang",
-  "versionCode": 1,
-  "versionLabel": "1.0.0",
+  "versionCode": 3,
+  "versionLabel": "1.0.2",
   "watchapp": {
     "watchface": true
   },
@@ -20,7 +20,7 @@
       {
         "type": "font",
         "name": "FONT_MINUTE_38",
-        "file": "fonts/edit_Asakim_Bold_38.ttf"
+        "file": "fonts/Asakim.ttf"
       },
       {
         "type": "png",
