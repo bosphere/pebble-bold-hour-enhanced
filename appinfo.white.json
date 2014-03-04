@@ -3,8 +3,8 @@
   "shortName": "Bold Hour with Dates",
   "longName": "Bold Hour with Dates",
   "companyName": "Bo Yang",
-  "versionCode": 3,
-  "versionLabel": "1.0.2",
+  "versionCode": 4,
+  "versionLabel": "1.0.3",
   "watchapp": {
     "watchface": true
   },
