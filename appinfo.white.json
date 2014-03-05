@@ -1,10 +1,10 @@
 {
   "uuid": "9b5577f7-b77a-43a2-8c54-8626153cc59a",
-  "shortName": "Bold Hour with Dates",
-  "longName": "Bold Hour with Dates",
+  "shortName": "Bold Hour Enhanced",
+  "longName": "Bold Hour Enhanced",
   "companyName": "Bo Yang",
-  "versionCode": 4,
-  "versionLabel": "1.0.3",
+  "versionCode": 5,
+  "versionLabel": "1.0.4",
   "watchapp": {
     "watchface": true
   },
@@ -15,7 +15,7 @@
         "menuIcon": true,
         "type": "png",
         "name": "IMAGE_MENU_ICON",
-        "file": "images/bold-hour-icon.png"
+        "file": "images/bold-hour-icon-inv.png"
       },
       {
         "type": "font",
@@ -25,12 +25,12 @@
       {
         "type": "png",
         "name": "IMAGE_BATTERY",
-        "file": "images/battery.png"
+        "file": "images/battery-inv.png"
       },
       {
         "type": "png",
         "name": "IMAGE_BATTERY_CHARGE",
-        "file": "images/battery_charging.png"
+        "file": "images/battery-charging-inv.png"
       },
       {
         "type": "png",

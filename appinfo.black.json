@@ -1,10 +1,10 @@
 {
-  "uuid": "d23059fa-0a9e-4f5d-b10d-6d08754c8460",
-  "shortName": "Bold Hour - Black",
-  "longName": "Bold Hour - Black",
-  "companyName": "Jon Eisen",
-  "versionCode": 2,
-  "versionLabel": "1.3.0",
+  "uuid": "dad78f61-9a5c-4fe8-a33b-03c7f57220b1",
+  "shortName": "Bold Hour Enhanced (Dark)",
+  "longName": "Bold Hour Enhanced (Dark)",
+  "companyName": "Bo Yang",
+  "versionCode": 5,
+  "versionLabel": "1.0.4",
   "watchapp": {
     "watchface": true
   },
@@ -20,7 +20,17 @@
       {
         "type": "font",
         "name": "FONT_MINUTE_38",
-        "file": "fonts/edit_Asakim_Bold_38.ttf"
+        "file": "fonts/Asakim.ttf"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BATTERY",
+        "file": "images/battery.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_BATTERY_CHARGE",
+        "file": "images/battery-charging.png"
       },
       {
         "type": "png",

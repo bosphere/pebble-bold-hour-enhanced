@@ -25,7 +25,7 @@
 #include <pebble.h>
 
 // -- build configuration --
-#define WHITE_TEXT
+// #define WHITE_TEXT
 
 // -- macros --
 #define UNINITTED -1
@@ -108,14 +108,14 @@ void set_minute_layer_location(unsigned short horiz) {
 
 void bottom_bar_layer_update_callback(Layer *layer, GContext* ctx) {
   if(bluetooth_connected) {
-    graphics_context_set_stroke_color(ctx, GColorWhite);
+    graphics_context_set_stroke_color(ctx, TEXT_COLOR);
     GRect boundary = layer_get_bounds(layer);
     graphics_draw_line(ctx, boundary.origin, GPoint(boundary.origin.x + boundary.size.w, boundary.origin.y));
   } else {
     if(bluetooth_disconnect_anim_repeat % 2 == 1) {
-      graphics_context_set_stroke_color(ctx, GColorBlack);  
+      graphics_context_set_stroke_color(ctx, BKGD_COLOR);  
     } else {
-      graphics_context_set_stroke_color(ctx, GColorWhite);
+      graphics_context_set_stroke_color(ctx, TEXT_COLOR);
     }
     graphics_draw_rect(ctx, layer_get_bounds(layer));
   }
@@ -214,6 +214,7 @@ static void handle_battery(BatteryChargeState charge_state) {
 static void handle_bluetooth(bool connected) {
   if(connected != bluetooth_connected) {  
     bluetooth_connected = connected;
+    bluetooth_disconnect_anim_repeat = 0;
     layer_mark_dirty(bottomBarLayer);
     
     if(initialized && !connected) {
@@ -242,11 +243,12 @@ void handle_init() {
   minuteFrame = GRect(53, 16, 40, 40);
   minuteLayer = text_layer_create(minuteFrame);
   hourLayer = bitmap_layer_create(GRect(0, 0, 144, 148));
-  batteryLogoLayer = bitmap_layer_create(GRect(65, 152, 10, 15));
-  batteryPercentLayer = text_layer_create(GRect(78, 151, 30, 168-151));
-  dateLayer = text_layer_create(GRect(3, 151, 38, 168-151));
-  dayLayer = text_layer_create(GRect(144-25, 151, 144-3, 168-151));
-  bottomBarLayer = layer_create(GRect(0, 150, 144, 18));
+  batteryLogoLayer = bitmap_layer_create(GRect(65, 151, 10, 15));
+  batteryPercentLayer = text_layer_create(GRect(78, 150, 30, 167-150));
+  dateLayer = text_layer_create(GRect(3, 150, 38, 167-150));
+  dayLayer = text_layer_create(GRect(141-30, 150, 30, 167-150));
+  text_layer_set_text_alignment(dayLayer, GTextAlignmentRight);
+  bottomBarLayer = layer_create(GRect(1, 149, 142, 18));
 
   // Setup minute layer
   text_layer_set_text_color(minuteLayer, TEXT_COLOR);
